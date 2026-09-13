@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Créer un CRUD — Portail CNCECE</title>
+<style>
+:root{color-scheme:dark;--bg:#080e13;--surface:#101b23;--border:#23343e;--text:#e5eef2;--muted:#a3b6c1;--green:#55e6ad;--blue:#75cfff;--mono:Consolas,"Cascadia Code",monospace;font-family:Inter,"Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);line-height:1.75;font-size:15px}body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 90% 0%,#123c333d,transparent 55%),linear-gradient(#31434b12 1px,transparent 1px),linear-gradient(90deg,#31434b12 1px,transparent 1px);background-size:auto,56px 56px,56px 56px}
+a{color:var(--green);text-underline-offset:4px}a:hover{color:#b2ffde}a:focus-visible,summary:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--green);outline-offset:5px}button{font:inherit}.topbar{height:66px;position:sticky;top:0;z-index:20;background:#080e13ed;backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1320px)/2));gap:20px}.brand{display:flex;align-items:center;gap:12px;font-weight:750;letter-spacing:-.4px;text-decoration:none;color:var(--text)}.brand svg{width:30px;height:28px}.brand span{color:var(--green)}.version{font:11px var(--mono);color:var(--muted);letter-spacing:1px}.progress{height:2px;position:fixed;top:64px;left:0;width:0;background:var(--green);z-index:21;box-shadow:0 0 12px #55e6ad88}
+.page{max-width:1320px;margin:auto;padding:0 28px 48px;display:grid;grid-template-columns:235px minmax(0,1fr);column-gap:54px;align-items:start}.intro{grid-column:1/-1;position:relative;overflow:hidden;padding:70px 0 58px;margin-bottom:30px;display:grid;grid-template-columns:1.3fr 1fr;gap:32px;align-items:center;border-bottom:1px solid var(--border)}.eyebrow{display:inline-flex;align-items:center;gap:9px;font:11px var(--mono);letter-spacing:2px;color:var(--green);text-transform:uppercase}.eyebrow:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}h1{font-size:clamp(40px,5.5vw,74px);line-height:1.08;letter-spacing:-3px;margin:24px 0;font-weight:780}h1 em{font-style:normal;color:var(--green)}.lead{font-size:17px;color:var(--muted);max-width:540px;line-height:1.8}.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.button{display:inline-flex;align-items:center;gap:16px;padding:11px 20px;border-radius:8px;border:1px solid var(--border);text-decoration:none;color:var(--text);font-weight:650}.button.primary{background:var(--green);color:#092219;border-color:var(--green)}.button:hover{transform:translateY(-2px);color:var(--text);background:#1c3630}.pills{display:flex;gap:18px;margin-top:24px;color:var(--muted);font:11px var(--mono)}
+.terminal{background:linear-gradient(145deg,#14252a,#0b141c);border:1px solid #37534e;border-radius:14px;box-shadow:0 25px 80px #0006,0 0 65px #55e6ad09;transform:rotate(-2deg);padding:22px;position:relative}.terminal-top{display:flex;gap:6px;border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:22px;font:11px var(--mono);color:var(--muted)}.terminal-top i{width:7px;height:7px;border-radius:50%;background:#4d696b}.terminal-top span{margin-left:auto}.terminal-label{color:var(--green);font:11px var(--mono);letter-spacing:2px;margin-bottom:20px}.request{display:flex;gap:20px;align-items:center;padding:13px 0;border-top:1px solid #22373b;font:12px var(--mono)}.request b{width:64px;color:var(--green)}.request:nth-of-type(4) b{color:var(--blue)}.request:last-child b{color:#ffb69c}.request span{color:#c5d7df}.terminal-note{font:11px var(--mono);color:var(--muted);margin-top:18px}
+.sommaire{grid-column:1;grid-row:2/30;position:sticky;top:94px;max-height:calc(100vh - 120px);overflow:auto;padding:0 12px 20px 0;scrollbar-width:thin}.sommaire h2{font:10px var(--mono);text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:0 0 16px}.sommaire ol{padding:0;margin:0;list-style:none}.sommaire li{margin:0}.sommaire a{display:block;padding:7px 12px;color:#a3b6c1;text-decoration:none;border-left:1px solid var(--border);font-size:12px;line-height:1.5}.sommaire a:hover,.sommaire a[aria-current="location"]{color:var(--green);background:#55e6ad0a;border-left-color:var(--green)}.sommaire .sub{padding-left:14px}.sommaire .sub a{font-size:11px;padding-top:5px;padding-bottom:5px}
+.chapitre{grid-column:2;min-width:0;margin-bottom:26px;padding:30px;background:linear-gradient(120deg,#111c24ee,#0d171fee);border:1px solid var(--border);border-radius:14px;scroll-margin-top:90px}.chapitre h2{font-size:24px;letter-spacing:-.65px;line-height:1.3;margin:0 0 22px}.chapitre>h2:before{content:"/";color:var(--green);margin-right:12px;font-weight:400}.chapitre p{color:#bacad3;margin:12px 0}.chapitre strong{color:#e8f4f8}.callout{padding:16px 18px;border:1px solid #315e4d;background:#55e6ad06;border-radius:8px;margin:16px 0}.label{display:block;color:var(--green);text-transform:uppercase;font:10px var(--mono);letter-spacing:1.5px;margin-bottom:8px}.callout p{margin:0;font-size:14px;line-height:1.8}.callout.piege{border-color:#735343;background:#ffb69c08}.callout.piege .label{color:#ffb69c}.etape{padding:25px 0;border-top:1px solid var(--border);scroll-margin-top:84px}.etape:first-of-type{margin-top:26px}.etape:last-child{padding-bottom:0}.etape h3{display:flex;align-items:center;gap:12px;font-size:19px;line-height:1.4;letter-spacing:-.25px;margin:0 0 16px}.num-etape{display:inline-grid;place-items:center;flex-shrink:0;width:32px;height:32px;font:13px var(--mono);border:1px solid #35664f;border-radius:8px;background:#55e6ad0d;color:var(--green)}.action{font-size:14px;padding-left:16px;border-left:2px solid var(--blue)}
+details{margin-top:20px;border:1px solid var(--border);border-radius:8px;background:#080f1540}summary{cursor:pointer;list-style:none;padding:13px 16px;color:var(--green);font-size:12px;font-weight:650;display:flex;justify-content:space-between;align-items:center;gap:12px}summary::-webkit-details-marker{display:none}summary:after{content:"+";font:20px var(--mono);color:var(--muted)}details[open]>summary:after{content:"−"}details[open]>summary{border-bottom:1px solid var(--border)}.details-body{padding:4px 18px 18px}.details-body>p{font-size:14px}.code-bloc{border:1px solid #2a3d47;border-radius:8px;overflow:hidden;margin:18px 0;min-width:0}.code-titre{background:#15242d;color:#95b6c5;border-bottom:1px solid var(--border);padding:10px 14px;font:11px var(--mono);overflow-wrap:anywhere}pre{background:#080f15;color:#c8e6dd;padding:18px;margin:0;overflow:auto;font:12px/1.9 var(--mono);tab-size:2}code{font-family:var(--mono);font-size:.88em;color:#8fe8c6;background:#55e6ad08;border-radius:4px;padding:2px 4px;overflow-wrap:anywhere}pre code{font:inherit;color:inherit;padding:0;background:none;overflow-wrap:normal}.c{color:#9aabb7}.k{color:#9bbaf7}.s{color:#8fe8c6}.f{color:#84d3f1}.table-scroll{overflow:auto;margin:20px 0;border:1px solid var(--border);border-radius:8px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border);min-width:130px}th{background:#172a30;color:var(--green);font:11px var(--mono)}td{color:#bacad3}tr:last-child td{border-bottom:0}td:first-child{color:#f0f7f8;font-weight:600}.table-scroll table{min-width:560px}ul,ol{padding-left:22px;color:#bacad3}li{margin:9px 0}.voyage li::marker{color:var(--green);font-family:var(--mono)}.checklist{list-style:none;padding:0;display:grid;gap:8px}.checklist li{display:flex;gap:12px;align-items:flex-start;background:#0a141b;border:1px solid var(--border);border-radius:7px;padding:12px;margin:0;font-size:13px}.checklist input{accent-color:var(--green);width:16px;height:16px;flex-shrink:0;margin-top:4px}.checklist label{cursor:pointer}.checklist li:has(:checked){border-color:#315e4d;background:#55e6ad08}.checklist li:has(:checked) label{color:var(--green)}footer{grid-column:2;color:var(--muted);font-size:11px;padding:10px 0 30px}.bloc-titre{font-size:12px;font-weight:700}.num{display:none}.terme{border-bottom:1px dotted var(--muted)}
+@media(min-width:1500px){.page{column-gap:70px}}@media(max-width:900px){.page{grid-template-columns:190px minmax(0,1fr);gap:24px;padding:0 20px}.intro{grid-template-columns:1fr;padding:45px 0 30px}.terminal{display:none}.chapitre{padding:24px}.sommaire a{font-size:11px}h1{max-width:650px}}@media(max-width:640px){.page{display:block;padding:0 16px}.topbar{padding:0 16px}.version{font-size:9px}.intro{display:block;margin-bottom:20px}h1{font-size:45px;letter-spacing:-2px}.lead{font-size:15px}.sommaire{position:relative;top:auto;max-height:230px;margin:0 0 24px;padding:16px;border:1px solid var(--border);border-radius:10px;background:#101b23}.chapitre{padding:20px;margin-bottom:18px}.chapitre h2{font-size:22px}.callout{padding:14px}.details-body{padding:0 12px 12px}.etape h3{font-size:17px}.pills{gap:12px;font-size:10px}footer{padding:16px 0}.hero-actions .button{font-size:13px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}.button:hover{transform:none}}@media print{body{background:#fff;color:#111}.topbar,.progress,.sommaire,.hero-actions,.terminal{display:none}.page{display:block;max-width:none}.intro{padding:0;display:block}.chapitre{break-inside:avoid;border-color:#bbb;background:white}.chapitre p,li,td{color:#222}.callout{border-color:#aaa;background:#f5f5f5}.label,code,.chapitre h2:before,h1 em{color:#156744}pre{white-space:pre-wrap;background:#f5f5f5;color:#111}details{border-color:#bbb}footer{color:#333}}
+</style>
+</head>
+<body><div class="progress" aria-hidden="true"></div><div class="topbar"><a class="brand" href="#accueil"><svg viewBox="0 0 32 28" aria-hidden="true"><path fill="#55e6ad" d="M0 0h7l9 15L25 0h7L16 28z"/><path fill="#48627a" d="M7 0h6l3 5 3-5h6l-9 15z"/></svg>CRUD<span> / </span>LAB</a><span class="version">CNCECE · GUIDE PRATIQUE</span></div>
+<div class="page">
+
+  <header class="intro" id="accueil">
+  <div><span class="eyebrow">Le guide de construction · Vue.js</span><h1>Comprendre.<br>Construire.<br><em>Créer ton CRUD.</em></h1>
+  <p class="lead">Les concepts essentiels, six étapes concrètes.<br>Un guide pour passer de « je découvre Vue » à ton premier module.</p>
+  <div class="hero-actions"><a class="button primary" href="#recette">Commencer les 6 étapes <span aria-hidden="true">↗</span></a><a class="button" href="#intro">Comprendre les bases</a></div>
+  <div class="pills"><span>Vue 3</span><span>Options API</span><span>Projet CNCECE</span></div></div>
+  <div class="terminal" aria-label="Les quatre opérations d’un CRUD"><div class="terminal-top"><i></i><i></i><i></i><span>utilisateurs.service.js</span></div><div class="terminal-label">UNE RESSOURCE. QUATRE ACTIONS.</div>
+  <div class="request"><b>POST</b><span>Créer une fiche</span></div><div class="request"><b>GET</b><span>Lire les données</span></div><div class="request"><b>PUT</b><span>Modifier une fiche</span></div><div class="request"><b>DELETE</b><span>Supprimer si autorisé</span></div>
+  <p class="terminal-note">// Utilisateur : désactiver pour garder l’historique.</p></div>
+</header>
+
+<nav class="sommaire" aria-label="Sommaire"><h2>Sommaire</h2><ol>
+<li><a href="#intro">Comprendre le CRUD et les composants Vue</a></li>
+<li><a href="#fondations">Axios, jeton Bearer et store Pinia</a></li>
+<li><a href="#loader">Le composant Loader</a></li>
+<li><a href="#recette">La recette CRUD en 6 étapes</a><ol class="sub">
+<li><a href="#etape-1">1. Le service</a></li><li><a href="#etape-2">2. Les routes</a></li><li><a href="#etape-3">3. La liste et les mixins</a></li><li><a href="#etape-4">4. Le détail</a></li><li><a href="#etape-5">5. Le formulaire et les erreurs 422</a></li><li><a href="#etape-6">6. La suppression</a></li>
+</ol></li><li><a href="#module">Intégrer un nouveau module</a></li>
+<li><a href="#tableau">Pour créer le module X, voici ce que je change</a></li>
+<li><a href="#statistiques">Ajouter un écran de statistiques</a></li>
+<li><a href="#voyage">Le voyage d'une donnée</a></li>
+<li><a href="#pieges">Les pièges du débutant</a></li>
+<li><a href="#checklist">Check-list finale</a></li>
+<li><a href="#plus-loin">Pour aller plus loin</a></li></ol></nav><section id="intro" class="chapitre"><h2>C’est quoi un CRUD ?</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un CRUD rassemble les actions créer, lire, modifier et supprimer une ressource, par exemple une fiche utilisateur. GET demande une lecture, POST crée une fiche, PUT modifie une fiche existante et DELETE demande sa suppression. Ce sont des méthodes HTTP : des mots qui indiquent au serveur l’action attendue. Les règles du métier peuvent remplacer la suppression par une désactivation, comme pour les utilisateurs.</p></div><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un composant est un morceau d’écran avec son affichage et son comportement, comme une brique de construction. Une vue est un composant utilisé comme page ; un composant réutilisable peut servir dans plusieurs pages, comme AppButton ou AppLoader. Une prop est un réglage reçu de son parent : par exemple le texte à afficher. En Options API, data() contient les valeurs de la page, computed calcule des valeurs dérivées, methods contient les actions et mounted() lance le travail une fois la page montée.</p></div><p class="action">Le modèle à retenir : une page Liste, une page Détail, un Formulaire pour créer et modifier.</p><details><summary>Voir les exemples du projet</summary><div class="details-body"><p>Ce guide utilise le CRUD utilisateur existant comme modèle : une page Liste, une page Détail et une page Formulaire commune à la création et à la modification. Les autres modules existent déjà en partie : on les complète en respectant leurs capacités réelles.</p>
+  
+  <p>Dans un fichier <code>.vue</code>, <code>&lt;template&gt;</code> décrit l’écran, <code>&lt;script&gt;</code> contient <code>export default { ... }</code> et <code>&lt;style&gt;</code> contient les règles visuelles. On reste en Options API dans tous les exemples.</p>
+  <div class="code-bloc"><div class="code-titre">Qui fait quoi ?</div><pre><code>Vue + mixin → service → instance Axios → API
+API → service → données de la vue → affichage Vue</code></pre></div>
+  <p><code>this</code> désigne la vue courante ; <code>this.erreur</code> est donc son message d’erreur. <code>async</code> et <code>await</code> permettent d’attendre la réponse du serveur ; <code>try/catch/finally</code> sépare le succès, l’échec et le nettoyage exécuté dans les deux cas.</p></div></details></section><section id="fondations" class="chapitre"><h2>Axios, jeton Bearer et store Pinia</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Axios est la bibliothèque qui transporte les demandes vers l’API, le serveur qui fournit les données. Le projet prépare une seule instance dans src/services/api.js : tous les services la réutilisent. Un jeton Bearer est le justificatif de connexion envoyé dans l’en-tête Authorization. L’intercepteur est un passage automatique avant chaque envoi : il ajoute ce jeton, comme un guichet qui tamponne chaque courrier.</p></div><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un store Pinia est une mémoire commune aux pages, comme un tableau partagé dans une salle de classe. Le store auth conserve le profil connecté, son rôle et son périmètre, c’est-à-dire la zone qu’il peut gérer. Une action du store effectue un travail ; un getter calcule une valeur pratique, comme le nom complet. On évite ainsi de recharger et recopier le profil dans chaque écran.</p></div><p class="action">Déjà prêt : api.js transporte les requêtes ; le store auth partage le profil. Réutilise-les.</p><details><summary>Voir les exemples du projet</summary><div class="details-body"><div class="code-bloc"><div class="code-titre">src/services/api.js — ajout automatique du jeton</div><pre><code>api.interceptors.request.use((config) =&gt; {
+  const jeton = localStorage.getItem(CLE_JETON)
+  if (jeton) {
+    config.headers.Authorization = `Bearer ${jeton}`
+  }
+  return config
+})</code></pre></div>
+  <p>Importe <code>api</code> depuis <code>./api.js</code> dans un service ; ne crée pas une autre instance et ne remets pas le jeton dans une vue. Les chemins des services sont relatifs à <code>https://portail.alwaysdata.net/api/v1</code>, configuré par <code>VITE_API_BASE_URL</code>. Avec <code>VITE_MODE_DEMO=true</code>, le même service reçoit les réponses du serveur fictif ; avec <code>false</code>, il appelle l’API réelle. Redémarre Vite après avoir changé le fichier <code>.env</code>.</p>
+  
+  <p><code>src/stores/auth.js</code> fournit <code>login()</code>, <code>chargerProfil()</code>, <code>utilisateur</code>, <code>role</code>, <code>nomComplet</code> et <code>perimetre</code>. Après connexion, puis après F5 si un jeton existe, <code>GET /auth/compte</code> remplit ce store ; la restauration est déclenchée par <code>src/router/index.js</code>.</p>
+  <div class="code-bloc"><div class="code-titre">src/layouts/TheHeader.vue — extrait de computed</div><pre><code>...mapState(useAuthStore, ['nomComplet', 'roleLibelle', 'perimetreLibelle', 'chargement']),</code></pre></div>
+  <p><code>mapState</code>, importé depuis <code>pinia</code>, relie ces données à <code>computed</code> en Options API. L’en-tête et <code>src/views/dashboard/DashboardView.vue</code> affichent déjà ces informations.</p></div></details></section><section id="loader" class="chapitre"><h2>Le composant Loader</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un loader indique que la demande est en cours : l’écran travaille et n’est pas bloqué. Le cercle tournant aide à patienter et le message explique ce qui charge. AppLoader est réutilisable : la même brique sert à toutes les ressources grâce à ses props. Il ne charge aucune donnée lui-même ; la vue ou son mixin décide de l’afficher.</p></div><p class="action">Affiche AppLoader pendant l’attente. Dans les listes, AppTable le fait déjà pour toi.</p><div class="code-bloc"><div class="code-titre">Dans ta vue</div><pre><code>&lt;AppLoader v-if="chargement" message="Chargement des utilisateurs…" /&gt;</code></pre></div><details><summary>Voir les exemples du projet</summary><div class="details-body"><p>Fichier : <code>src/components/common/AppLoader.vue</code>. Il est enregistré dans <code>src/components/index.js</code>, donc disponible dans toutes les vues sans import local.</p>
+  <div class="table-scroll"><table><thead><tr><th>Prop</th><th>Type et défaut</th><th>Utilité</th></tr></thead><tbody>
+  <tr><td><code>message</code></td><td>String : « Chargement… »</td><td>Texte sous le cercle et annoncé par les lecteurs d’écran.</td></tr>
+  <tr><td><code>pleinePage</code></td><td>Boolean : false</td><td>Superposition centrée sur tout l’écran si true.</td></tr>
+  <tr><td><code>taille</code></td><td>String : « moyen »</td><td>« petit », « moyen » ou « grand ».</td></tr></tbody></table></div>
+  <div class="code-bloc"><div class="code-titre">Utilisations possibles dans une vue</div><pre><code>&lt;AppLoader v-if="chargement" /&gt;
+&lt;AppLoader v-if="chargement" message="Chargement des élèves…" taille="petit" /&gt;
+&lt;AppLoader v-if="chargement" :pleine-page="true" taille="grand" /&gt;</code></pre></div>
+  <p>Ces trois lignes sont des variantes : choisis-en une. <code>v-if</code> affiche le composant seulement si la condition est vraie. Le <code>:</code> devant une prop transmet une valeur JavaScript ; <code>:pleine-page="true"</code> transmet donc un booléen, tandis que <code>message="..."</code> transmet du texte.</p>
+  <div class="code-bloc"><div class="code-titre">src/views/utilisateurs/UtilisateurDetailView.vue — extrait réel</div><pre><code>&lt;AppLoader v-if="chargement" message="Chargement de la fiche…" /&gt;
+
+    &lt;!-- État 2 : erreur (réseau, 403, 404…) --&gt;
+    &lt;AppAlert v-else-if="erreur" type="erreur" :message="erreur" /&gt;</code></pre></div>
+  <p>Dans une liste, <code>AppTable :chargement="chargement"</code> affiche déjà <code>AppLoader</code> dans sa cellule de chargement : inutile d’en ajouter un deuxième au-dessus. La liste utilisateur reçoit cet état depuis <code>listeApi</code> ; le détail le reçoit depuis <code>etatApi</code>.</p>
+  <p>Le spinner est dessiné et animé en CSS, sans image. <code>role="status"</code> permet d’annoncer le message, le cercle décoratif est masqué aux lecteurs d’écran, et la préférence de réduction des animations est respectée. La superposition n’est pas une boîte de dialogue : elle ne déplace pas le focus et ne désactive pas les boutons au clavier ; garde les actions désactivées pendant leur envoi.</p></div></details></section><section id="recette" class="chapitre"><h2>La recette en 6 étapes</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Une ressource complète relie plusieurs petites pièces : le service, les routes et les vues. On les construit dans cet ordre pour savoir où chercher quand quelque chose ne fonctionne pas. Le CRUD utilisateur sert de plan de montage ; chaque étape ci-dessous indique ce qui reste commun et ce qui dépend de ta ressource.</p></div><p>Les extraits ci-dessous viennent des fichiers actuels. Un extrait montre une partie d’un composant : conserve les autres champs, imports et méthodes du fichier modèle lorsque tu le copies.</p><div class="etape" id="etape-1"><h3><span class="num-etape">1</span> Créer le service</h3><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un service est un fichier qui regroupe les demandes au serveur pour un sujet précis. C’est le correspondant de la ressource : la vue lui demande une liste sans avoir à connaître les détails du transport. Cette séparation permet de corriger une URL dans un seul fichier et de garder les vues lisibles.</p></div><p class="action">À faire : réutilise le service de ta ressource. Il parle au serveur ; ta vue lui demande simplement les données.</p><details><summary>Voir le code et l’application dans le projet</summary><div class="details-body"><div class="code-bloc"><div class="code-titre">src/services/utilisateurs.service.js — service réel complet</div><pre><code>// src/services/utilisateurs.service.js
+// Domaine « Utilisateurs » : comptes et rôles. admin_national gère tout ;
+// admin_academie gère uniquement les agents CAP et directeurs de son académie.
+// Aucune suppression physique : désactivation (révoque aussi les jetons).
+import api, { extraireDonnees, extraireListe, nettoyerParams } from './api.js'
+
+export default {
+  /** GET /utilisateurs — params : role, academie_id, cap_id, etablissement_id, actif, page, par_page, recherche, tri, ordre */
+  async liste(params = {}) {
+    const reponse = await api.get('/utilisateurs', { params: nettoyerParams(params) })
+    return extraireListe(reponse)
+  },
+
+  // Alias conservé pour les pages existantes qui utilisent la convention « lister ».
+  lister(params = {}) {
+    return this.liste(params)
+  },
+
+  /** GET /utilisateurs/{id} */
+  async detail(id) {
+    const reponse = await api.get(`/utilisateurs/${id}`)
+    return extraireDonnees(reponse)
+  },
+
+  /**
+   * POST /utilisateurs — body UtilisateurEntree : { nom*, prenom*, email*, mot_de_passe*, role*,
+   * academie_id (admin_academie), cap_id (agent_cap), etablissement_id (directeur), actif }
+   */
+  async creer(donnees) {
+    const reponse = await api.post('/utilisateurs', donnees)
+    return extraireDonnees(reponse)
+  },
+
+  /** PUT /utilisateurs/{id} — mot_de_passe facultatif */
+  async modifier(id, donnees) {
+    const reponse = await api.put(`/utilisateurs/${id}`, donnees)
+    return extraireDonnees(reponse)
+  },
+
+  /** POST /utilisateurs/{id}/activer */
+  async activer(id) {
+    const reponse = await api.post(`/utilisateurs/${id}/activer`)
+    return extraireDonnees(reponse)
+  },
+
+  /** POST /utilisateurs/{id}/desactiver — révoque tous ses jetons */
+  async desactiver(id) {
+    const reponse = await api.post(`/utilisateurs/${id}/desactiver`)
+    return extraireDonnees(reponse)
+  },
+
+  /**
+   * DELETE /utilisateurs/{id} — suppression physique.
+   * Fournie pour que ce service reste le modèle CRUD complet (lister/detail/creer/modifier/
+   * supprimer) que les autres ressources copient. Mais côté vues Utilisateur, ne pas s'en
+   * servir : la règle métier du portail interdit la suppression physique d'un compte (RG-7) —
+   * la vue Détail appelle desactiver() à la place, jamais supprimer().
+   */
+  async supprimer(id) {
+    const reponse = await api.delete(`/utilisateurs/${id}`)
+    return extraireDonnees(reponse)
+  },
+}</code></pre></div>
+  <p><code>extraireDonnees</code> lit <code>reponse.data.donnees</code> ; <code>extraireListe</code> fournit <code>{ elements, pagination }</code> ; <code>nettoyerParams</code> retire les filtres vides. Pour les utilisateurs, la méthode est <code>liste(params)</code>, avec l’alias <code>lister(params)</code> conservé. Les académies, CAP, élèves et établissements utilisent <code>lister</code> ; les filières utilisent <code>referentielsService.listerFilieres</code>.</p>
+  <p><strong>À toi :</strong> ouvre le service de ta ressource dans le tableau plus bas. Réutilise ses méthodes ; si une ressource est vraiment nouvelle, copie la structure du service utilisateur et adapte seulement les opérations disponibles sur ton API.</p></div></details></div><div class="etape" id="etape-2"><h3><span class="num-etape">2</span> Ajouter les routes</h3><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Une route associe une adresse du navigateur à une page Vue, comme un panneau qui indique quelle porte ouvrir. Dans /utilisateurs/:id, :id est la partie variable : pour /utilisateurs/12, this.$route.params.id vaut la chaîne « 12 ». Le nom de route permet de naviguer sans recopier l’adresse partout. La route du navigateur et l’URL de l’API sont deux choses différentes : /referentiels/academies affiche une page, tandis que GET /academies fournit ses données.</p></div><p class="action">À faire : relie les URL aux trois vues. Place nouveau avant :id et donne un nom unique à chaque route.</p><details><summary>Voir le code et l’application dans le projet</summary><div class="details-body"><div class="code-bloc"><div class="code-titre">src/router/index.js — routes utilisateur existantes</div><pre><code>{
+        path: 'utilisateurs',
+        name: 'utilisateurs',
+        component: () =&gt; import('@/views/utilisateurs/UtilisateursView.vue'),
+        meta: { titre: 'Utilisateurs', roles: [ROLES.ADMIN_NATIONAL, ROLES.ADMIN_ACADEMIE] },
+      },
+      {
+        path: 'utilisateurs/roles',
+        name: 'roles',
+        component: () =&gt; import('@/views/utilisateurs/RolesView.vue'),
+        meta: { titre: 'Rôles et permissions', roles: [ROLES.ADMIN_NATIONAL] },
+      },
+      {
+        path: 'utilisateurs/nouveau',
+        name: 'utilisateur-nouveau',
+        component: () =&gt; import('@/views/utilisateurs/UtilisateurFormulaireView.vue'),
+        meta: { titre: 'Nouvel utilisateur', roles: [ROLES.ADMIN_NATIONAL, ROLES.ADMIN_ACADEMIE] },
+      },
+      {
+        path: 'utilisateurs/:id/modifier',
+        name: 'utilisateur-modifier',
+        component: () =&gt; import('@/views/utilisateurs/UtilisateurFormulaireView.vue'),
+        props: true, // l'id de l'URL devient une prop du composant → mode édition
+        meta: { titre: 'Modifier l’utilisateur', roles: [ROLES.ADMIN_NATIONAL, ROLES.ADMIN_ACADEMIE] },
+      },
+      {
+        path: 'utilisateurs/:id',
+        name: 'utilisateur-detail',
+        component: () =&gt; import('@/views/utilisateurs/UtilisateurDetailView.vue'),
+        props: true,
+        meta: { titre: 'Fiche utilisateur', roles: [ROLES.ADMIN_NATIONAL, ROLES.ADMIN_ACADEMIE] },
+      },</code></pre></div>
+  <p>Ces objets sont dans <code>children</code> du layout principal. Garde les routes à mot-clé (<code>nouveau</code>, <code>roles</code>, <code>recherche</code>) avant celles avec <code>:id</code>. <code>props: true</code> transmet aussi l’identifiant comme prop, mais la lecture <code>this.$route.params.id</code> reste possible sans cette option. <code>meta.titre</code> donne le titre ; <code>meta.roles</code> indique les rôles autorisés. Les constantes <code>ROLES</code> viennent de <code>src/utils/permissions.js</code>.</p>
+  <p><strong>À toi :</strong> adapte les noms et chemins, garde des noms uniques et utilise les chemins des composants effectivement créés. Plusieurs modules ont déjà une route liste : complète-la au lieu d’en créer une seconde.</p></div></details></div><div class="etape" id="etape-3"><h3><span class="num-etape">3</span> La vue Liste : mixins et états</h3><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un mixin est un morceau de composant que plusieurs vues peuvent partager, comme une recette commune au lieu de réécrire les mêmes étapes. listeApi fournit les éléments, les filtres, la pagination et la méthode charger(). Il réutilise etatApi pour gérer chargement et erreur, puis appelle chargerElements(params), la méthode propre à ta vue. mounted() lance automatiquement le premier chargement.</p></div><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Pendant le chargement, on ne connaît pas encore le résultat : on affiche le Loader. Une erreur signifie que la demande a échoué ; une liste vide signifie qu’elle a réussi mais ne contient aucun élément. Ce sont des situations différentes, donc il faut les afficher dans cet ordre : chargement, erreur, vide, puis contenu. Un message clair évite que la personne attende ou réessaie inutilement.</p></div><p class="action">À faire : branche listeApi, renseigne chargerElements(params), puis adapte les colonnes et les boutons.</p><details><summary>Voir le code et l’application dans le projet</summary><div class="details-body">
+  <div class="code-bloc"><div class="code-titre">src/views/utilisateurs/UtilisateursView.vue — branchement du mixin</div><pre><code>import listeApi from '@/mixins/listeApi.js'
+import utilisateursService from '@/services/utilisateurs.service.js'
+
+// Dans export default :
+mixins: [listeApi],
+
+// Dans methods :
+chargerElements(params) {
+      return utilisateursService.liste(params)
+    }</code></pre></div>
+  <div class="code-bloc"><div class="code-titre">src/views/utilisateurs/UtilisateursView.vue — tableau et pagination (extraits)</div><pre><code>&lt;AppTable :colonnes="colonnes" :lignes="elements" :chargement="chargement" :erreur="erreur"
+                :tri="params.tri" :ordre="params.ordre" cliquable
+                message-vide="Aucun utilisateur." @trier="trier" @reessayer="charger" @ligne-cliquee="ouvrirFiche"&gt;
+
+  &lt;!-- Les cellules et actions du fichier réel se placent ici. --&gt;
+&lt;/AppTable&gt;
+
+&lt;AppPagination :pagination="pagination" @changer-page="changerPage" @changer-taille="changerTaille" /&gt;</code></pre></div>
+  <p><code>:colonnes</code> décrit les titres et les clés à lire dans chaque objet ; <code>:lignes</code> reçoit les éléments. <code>@trier</code> et <code>@changer-page</code> écoutent les événements envoyés par les composants et appellent les méthodes du mixin. Un <code>slot</code>, comme <code>#actions</code>, est une zone où la vue fournit ses propres boutons à AppTable.</p>
+  <p><strong>À toi :</strong> copie la liste utilisateur, remplace le service dans <code>chargerElements</code>, adapte <code>colonnes</code>, <code>filtresInitiaux()</code>, les noms de routes et le message vide. Retire les actions d’activation si ta ressource ne les possède pas.</p></div></details></div><div class="etape" id="etape-4"><h3><span class="num-etape">4</span> La vue Détail</h3><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Une page détail lit une seule fiche en utilisant l’identifiant présent dans l’adresse. Le mixin etatApi est adapté à cette page car elle n’a pas besoin de pagination. executerChargement reçoit une action à exécuter et gère l’attente ainsi que le message d’erreur autour de cette action.</p></div><p class="action">À faire : lis this.$route.params.id et charge la fiche avec etatApi. Affiche le Loader, l’erreur ou les informations.</p><details><summary>Voir le code et l’application dans le projet</summary><div class="details-body"><div class="code-bloc"><div class="code-titre">src/mixins/etatApi.js — gestion commune réelle</div><pre><code>// Gestion commune du chargement et des erreurs pour une liste ou une fiche.
+// L'action fournie contient uniquement le travail propre à la page.
+export default {
+  data() {
+    return { chargement: false, erreur: '' }
+  },
+  methods: {
+    async executerChargement(action) {
+      this.chargement = true
+      this.erreur = ''
+      try {
+        await action()
+      } catch (e) {
+        this.erreur = e.message
+      } finally {
+        this.chargement = false
+      }
+    },
+  },
+}</code></pre></div>
+  <div class="code-bloc"><div class="code-titre">src/views/utilisateurs/UtilisateurDetailView.vue — extraits</div><pre><code>import etatApi from '@/mixins/etatApi.js'
+import utilisateursService from '@/services/utilisateurs.service.js'
+
+// Dans export default :
+mixins: [etatApi],
+mounted() {
+    this.charger()
+  }
+
+// Dans methods :
+async charger() {
+      await this.executerChargement(async () =&gt; {
+        // Le paramètre dynamique se lit directement dans la route.
+        this.utilisateur = await utilisateursService.detail(this.$route.params.id)
+      })
+    }</code></pre></div>
+  <p>Le template commence par <code>AppLoader v-if="chargement"</code>, puis <code>AppAlert v-else-if="erreur"</code>, puis le cas <code>!utilisateur</code> et enfin les informations. Le bouton Modifier navigue vers <code>utilisateur-modifier</code> avec <code>params: { id: utilisateur.id }</code>. Le layout <code>src/layouts/DefaultLayout.vue</code> utilise déjà <code>:key="$route.fullPath"</code> pour recréer la vue lorsque l’URL change.</p>
+  <p><strong>À toi :</strong> remplace <code>utilisateur</code> par le nom de ta fiche dans <code>data()</code>, le chargement et le template. Garde la lecture <code>this.$route.params.id</code>, remplace le service et adapte les informations affichées.</p></div></details></div><div class="etape" id="etape-5"><h3><span class="num-etape">5</span> La vue Formulaire : créer et modifier</h3><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un seul formulaire peut servir à créer et à modifier : la présence de :id indique qu’une fiche existe déjà. POST envoie une nouvelle fiche ; PUT envoie les modifications de la fiche identifiée. v-model relie chaque champ à une valeur de data(), et @submit.prevent appelle la méthode sans recharger toute la page. Une erreur 422 signifie que le serveur refuse certains champs, par exemple un e-mail déjà utilisé : on montre le message sous le champ concerné.</p></div><p class="action">À faire : sans id, crée avec POST ; avec id, charge puis modifie avec PUT. Affiche les erreurs 422 sous les champs.</p><details><summary>Voir le code et l’application dans le projet</summary><div class="details-body"><div class="code-bloc"><div class="code-titre">src/views/utilisateurs/UtilisateurFormulaireView.vue — détection du mode (computed)</div><pre><code>estEdition() {
+      return Boolean(this.$route.params.id)
+    }</code></pre></div>
+  <p>Dans <code>created()</code>, le formulaire charge ses listes de choix, puis appelle <code>chargerUtilisateur()</code> en mode édition. Cette méthode remplit <code>donnees</code> et laisse le mot de passe vide pour ne pas le changer involontairement. Les erreurs du chargement initial vont dans <code>erreurChargement</code> ; celles de l’envoi vont dans <code>erreur</code> et <code>erreurs</code>.</p>
+  <div class="code-bloc"><div class="code-titre">src/views/utilisateurs/UtilisateurFormulaireView.vue — méthode réelle d’envoi</div><pre><code>async enregistrer() {
+      if (this.chargementEnvoi) return
+      this.chargementEnvoi = true
+      this.erreur = ''
+      this.erreurs = {}
+      const d = this.donnees
+      // Corps envoyé à l'API : champs communs + le seul rattachement pertinent pour le rôle
+      const corps = { nom: d.nom, prenom: d.prenom, email: d.email, role: d.role, actif: d.actif === 'true' }
+      if (d.mot_de_passe) corps.mot_de_passe = d.mot_de_passe
+      if (d.role === ROLES.ADMIN_ACADEMIE) corps.academie_id = d.academie_id
+      if (d.role === ROLES.AGENT_CAP) corps.cap_id = d.cap_id
+      if (d.role === ROLES.DIRECTEUR) corps.etablissement_id = d.etablissement_id
+      try {
+        // Le test qui décide de tout : id présent → modifier, sinon → créer.
+        if (this.estEdition) await utilisateursService.modifier(this.$route.params.id, corps)
+        else await utilisateursService.creer(corps)
+        // Redirection vers la liste après succès (RG demandée par l'énoncé).
+        this.$router.push({ name: 'utilisateurs' })
+      } catch (e) {
+        this.erreur = e.message
+        this.erreurs = e.erreurs || {}
+      } finally {
+        this.chargementEnvoi = false
+      }
+    }</code></pre></div>
+  <div class="code-bloc"><div class="code-titre">src/views/utilisateurs/UtilisateurFormulaireView.vue — champs et bouton (extraits)</div><pre><code>&lt;AppInput v-model="donnees.nom" label="Nom" obligatoire :erreur="erreurs.nom" /&gt;
+&lt;AppInput v-model="donnees.email" label="E-mail (identifiant de connexion)" type="email" obligatoire autocomplete="off" :erreur="erreurs.email" /&gt;
+
+&lt;AppButton type="submit" :chargement="chargementEnvoi"&gt;
+            &lt;template #chargement&gt;Enregistrement…&lt;/template&gt;
+            Enregistrer
+          &lt;/AppButton&gt;</code></pre></div>
+  <p><code>AppInput</code> accepte le tableau de messages renvoyé par l’API et affiche le premier. <code>AppButton :chargement="chargementEnvoi"</code> désactive le bouton ; son slot <code>#chargement</code> permet d’afficher « Enregistrement… ». Pour les erreurs de chargement d’une fiche, utilise AppLoader ; pour l’envoi d’un formulaire, conserve l’état du bouton.</p>
+  <p><strong>À toi :</strong> adapte <code>DONNEES_VIDES</code>, les champs, les erreurs associées et le <code>corps</code> envoyé. Ne conserve pas les champs utilisateur (rôle, mot de passe, actif) dans une académie. Pour les candidats, l’action de création s’appelle <code>deposer</code> ; pour les transferts, elle s’appelle <code>demander</code>. N’ajoute pas une branche PUT si le service ne l’expose pas.</p></div></details></div><div class="etape" id="etape-6"><h3><span class="num-etape">6</span> La suppression : confirmation et actualisation</h3><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Supprimer une fiche peut effacer des informations nécessaires à l’historique : la règle dépend donc de la ressource. Pour un utilisateur, « Supprimer » appelle la désactivation et conserve le compte. Pour les académies, CAP et établissements, les services exposent une vraie méthode supprimer(), mais le serveur peut refuser si des données dépendent encore de la fiche. Une confirmation explique l’effet avant l’action ; ensuite l’écran doit refléter le résultat.</p></div><p class="action">À faire : explique l’action dans une confirmation, appelle le service puis actualise l’écran. Pour un utilisateur, désactive le compte.</p><details><summary>Voir le code et l’application dans le projet</summary><div class="details-body"><div class="code-bloc"><div class="code-titre">src/views/utilisateurs/UtilisateurDetailView.vue — méthode réelle</div><pre><code>async supprimer() {
+      if (this.confirmation.chargement) return
+      this.erreurAction = ''
+      this.succes = ''
+      this.confirmation.chargement = true
+      try {
+        await utilisateursService.desactiver(this.utilisateur.id)
+        this.utilisateur.actif = false
+        this.succes = 'Compte désactivé.'
+      } catch (e) {
+        this.erreurAction = e.message
+      } finally {
+        this.confirmation = { ouverte: false, chargement: false }
+      }
+    }</code></pre></div>
+  <p>Le bouton ouvre <code>confirmation.ouverte</code> et <code>AppConfirmModal</code> appelle cette méthode après confirmation. La méthode <code>utilisateursService.supprimer()</code> existe comme modèle générique mais les vues utilisateur ne l’appellent pas. Après un DELETE autorisé depuis une fiche, retourne à la liste avec <code>this.$router.push({ name: 'academies' })</code> ; depuis la liste, rappelle <code>await this.charger()</code>.</p>
+  <p><strong>À toi :</strong> reprends la confirmation, change son texte et l’action selon le service réel. Les services élèves, candidats et transferts n’exposent pas de suppression ; ne leur invente pas un DELETE.</p></div></details></div></section><section id="module" class="chapitre"><h2>Intégrer un nouveau module</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un module est un ensemble d’écrans qui traite un même sujet, comme les académies. Copier un module signifie reprendre sa structure, puis adapter les données et les actions, pas remplacer un mot partout sans vérifier. Dans ce projet, plusieurs modules existent déjà : on garde leur service et on transforme leurs écrans seulement si le travail demandé le nécessite.</p></div><p class="action">Pars du CRUD utilisateur. Adapte le service, les routes, les champs et les actions métier de ta ressource.</p><details><summary>Suivre l’exemple des académies</summary><div class="details-body"><p>Exemple concret : passer les académies au modèle en pages séparées. <code>src/services/academies.service.js</code> et la route <code>academies</code> existent déjà ; <code>src/views/referentiels/AcademiesView.vue</code> utilise actuellement des modales. Les deux nouveaux fichiers ci-dessous sont des <strong>fichiers à créer pour cet exercice</strong>, pas des fichiers déjà présents.</p>
+  <ol>
+  <li>Ouvre le service existant et repère <code>lister</code>, <code>detail</code>, <code>creer</code>, <code>modifier</code>, <code>supprimer</code>. Lis les champs dans son commentaire et dans le formulaire existant.</li>
+  <li>Adapte <code>AcademiesView.vue</code> à partir de <code>UtilisateursView.vue</code> : conserve son nom, ses colonnes, son service et ses filtres ; les boutons ouvrent maintenant des routes.</li>
+  <li>Crée <code>src/views/referentiels/AcademieDetailView.vue</code> à partir du détail utilisateur. Remplace le nom du composant, la donnée <code>utilisateur</code> par <code>academie</code>, l’import du service et les champs ; conserve <code>etatApi</code>, <code>AppLoader</code>, les erreurs et la lecture de <code>:id</code>.</li>
+  <li>Crée <code>src/views/referentiels/AcademieFormulaireView.vue</code> à partir du formulaire utilisateur. Reprends les champs de <code>FORMULAIRE_VIDE</code> dans AcademiesView, puis adapte chargement, POST, PUT et messages 422 ; retire le code de mot de passe et de rôles utilisateur.</li>
+  <li>Dans <code>src/router/index.js</code>, garde la route liste existante et ajoute les trois routes ci-dessous dans <code>children</code>, avec les mêmes rôles que la liste.</li>
+  <li>Dans la liste, « Nouveau » vise <code>academie-nouveau</code> et « Détails » vise <code>academie-detail</code> avec l’id ; dans le détail, « Modifier » vise <code>academie-modifier</code>. Après un enregistrement ou une suppression, retourne à <code>academies</code>.</li>
+  <li>Le menu est défini dans <code>src/layouts/TheSidebar.vue</code>. Son entrée Académies existe déjà : garde-la. Pour une ressource entièrement nouvelle, ajoute une entrée cohérente avec les autres et avec les permissions.</li>
+  <li>Teste la liste, une fiche, la création, l’édition, une erreur 422, le chargement lent et une liste vide avant de passer au module suivant.</li></ol>
+  <div class="code-bloc"><div class="code-titre">Exercice — routes à ajouter après création des deux composants (dans children)</div><pre><code>{
+  path: 'referentiels/academies/nouveau',
+  name: 'academie-nouveau',
+  component: () =&gt; import('@/views/referentiels/AcademieFormulaireView.vue'),
+  meta: { titre: 'Nouvelle académie', roles: [ROLES.ADMIN_NATIONAL, ROLES.ADMIN_ACADEMIE] },
+},
+{
+  path: 'referentiels/academies/:id/modifier',
+  name: 'academie-modifier',
+  component: () =&gt; import('@/views/referentiels/AcademieFormulaireView.vue'),
+  props: true,
+  meta: { titre: 'Modifier l’académie', roles: [ROLES.ADMIN_NATIONAL, ROLES.ADMIN_ACADEMIE] },
+},
+{
+  path: 'referentiels/academies/:id',
+  name: 'academie-detail',
+  component: () =&gt; import('@/views/referentiels/AcademieDetailView.vue'),
+  props: true,
+  meta: { titre: 'Fiche académie', roles: [ROLES.ADMIN_NATIONAL, ROLES.ADMIN_ACADEMIE] },
+},</code></pre></div>
+  <p>Les routes protègent l’accès aux pages ; les règles exactes de création, modification et suppression restent contrôlées par le serveur. Conserve aussi les restrictions des boutons du module existant. Le Loader, les mixins, Axios et le store restent partagés : ne les copie pas dans chaque dossier.</p></div></details></section><section id="tableau" class="chapitre"><h2>Pour créer le module X, voici ce que je change</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Le tableau est une carte de correspondance : il indique quelles pièces du modèle remplacer pour chaque ressource. Les endpoints sont les adresses appelées par les services, pas les adresses des pages. Une action absente du service actuel ne devient pas disponible simplement parce qu’on ajoute un bouton. Les noms marqués « à créer » sont des propositions pour l’exercice ; tous les autres sont ceux du projet.</p></div><p class="action">Retrouve les vrais services et les possibilités de chaque module. Toutes les ressources ne permettent pas les quatre opérations.</p><details><summary>Ouvrir le tableau des 8 modules</summary><div class="details-body"><p>Tous les services ci-dessous se trouvent dans <code>src/services/</code>. Les colonnes et champs indiquent les points de départ ; conserve les contrôles et listes de choix des vues existantes pour le détail complet.</p><div class="table-scroll"><table><thead><tr><th>Module</th><th>Service et fonctions</th><th>Endpoints actuels</th><th>Colonnes / chiffres</th><th>Champs du formulaire</th><th>Noms de routes</th></tr></thead><tbody><tr><td>Utilisateurs</td><td>utilisateurs.service.js : liste (alias lister), detail, creer, modifier, supprimer, activer, desactiver</td><td>GET/POST /utilisateurs ; GET/PUT/DELETE /utilisateurs/:id ; POST /utilisateurs/:id/activer ou /desactiver. DELETE non utilisé par les vues.</td><td>nom, prenom, email, role, rattachement, actif</td><td>nom, prenom, email, mot_de_passe, role, rattachement selon rôle, actif</td><td>Existants : utilisateurs, utilisateur-nouveau, utilisateur-detail, utilisateur-modifier</td></tr><tr><td>Élèves</td><td>eleves.service.js : lister, detail, creer, modifier, reinscrire, rechercherParMatricule</td><td>GET/POST /eleves ; GET/PUT /eleves/:id ; POST /eleves/:id/reinscription ; GET /eleves/recherche</td><td>matricule, nom, prenom, inscription_active, statut</td><td>État civil + inscription : reprendre EleveCreateView.vue, EtatCivilFields et InscriptionFields</td><td>Existants : eleves, eleve-nouveau, eleve-detail, recherche-nationale. Édition actuelle dans la fiche ; eleve-modifier serait à ajouter pour une page séparée.</td></tr><tr><td>Filières</td><td>referentiels.service.js : listerFilieres</td><td>GET /filieres uniquement dans le service actuel</td><td>code, libelle, diplome, duree_annees</td><td>Aucun formulaire actuel : lecture seule</td><td>Existant : filieres, chemin /referentiels/filieres. Ne pas inventer les routes détail/écriture sans API correspondante.</td></tr><tr><td>Établissements</td><td>etablissements.service.js : lister, detail, creer, modifier, supprimer</td><td>GET/POST /etablissements ; GET/PUT/DELETE /etablissements/:id</td><td>code, nom, ordre, rattachement, statut</td><td>code, nom, ordre, statut_juridique, cap_id/academie_id, cycles, localite… Reprendre EtablissementsView.vue</td><td>Existant : etablissements. Pour des pages séparées : etablissement-nouveau, etablissement-detail, etablissement-modifier à créer sous /referentiels/etablissements.</td></tr><tr><td>Candidats</td><td>candidats.service.js : lister, detail, deposer, valider, rejeter</td><td>GET/POST /candidats ; GET /candidats/:id ; POST /candidats/:id/valider ou /rejeter</td><td>élève, examen, type_candidat, rattachement, statut</td><td>examen, type_candidat, eleve_id/matricule/eleve, rattachement, serie_id/filiere_id, pieces_jointes : reprendre CandidatureView.vue</td><td>Existants : candidats, candidature-nouvelle. Un candidat-detail serait à créer pour sortir le détail de la modale. Pas de PUT/DELETE exposé.</td></tr><tr><td>Académies</td><td>academies.service.js : lister, detail, creer, modifier, supprimer</td><td>GET/POST /academies ; GET/PUT/DELETE /academies/:id</td><td>code, nom, directeur, statut</td><td>code, nom, adresse, telephone, email, directeur, statut</td><td>Existant : academies. Exercice : academie-nouveau, academie-detail, academie-modifier sous /referentiels/academies.</td></tr><tr><td>CAP</td><td>caps.service.js : lister, detail, creer, modifier, supprimer</td><td>GET/POST /caps ; GET/PUT/DELETE /caps/:id</td><td>code, nom, academie, directeur, statut</td><td>code, nom, academie_id, adresse, telephone, directeur, statut</td><td>Existant : caps. Pour des pages séparées : cap-nouveau, cap-detail, cap-modifier à créer sous /referentiels/caps. Vue actuelle : CapView.vue.</td></tr><tr><td>Transferts</td><td>transferts.service.js : lister, detail, demander, valider, rejeter</td><td>GET/POST /transferts ; GET /transferts/:id ; POST /transferts/:id/valider ou /rejeter</td><td>élève, établissement origine, établissement accueil, statut</td><td>eleve_id, etablissement_origine_id, etablissement_accueil_id, motif ; motif_rejet pour rejeter</td><td>Existant : transferts. transfert-nouveau et transfert-detail seraient à créer pour des pages séparées. Pas de PUT/DELETE exposé.</td></tr><tr><td>Statistiques</td><td>statistiques.service.js : national, academie, cap, etablissement, pourPerimetre</td><td>GET /statistiques/national ; GET /statistiques/academies/:id, /caps/:id ou /etablissements/:id</td><td>Cartes : effectifs, candidats, transferts</td><td>Choix de périmètre, pas de formulaire de création</td><td>Existants : statistiques et tableau-de-bord. Aucun CRUD d’écriture.</td></tr></tbody></table></div>
+  <p>Pour retrouver les modèles : élèves et transferts dans <code>src/views/eleves/</code>, candidats dans <code>src/views/examens/</code>, académies/CAP/établissements/filières dans <code>src/views/referentiels/</code>. Les fonctions des services utilisent un export par défaut : <code>import academiesService from '@/services/academies.service.js'</code> donne un nom local à cet objet.</p></div></details></section><section id="statistiques" class="chapitre"><h2>Ajouter un écran de statistiques</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Une statistique résume plusieurs fiches en un chiffre, comme le nombre total d’élèves inscrits. Le serveur fait le calcul ; l’écran affiche les résultats dans des cartes. On utilise GET pour les lire et on ne crée ni ne supprime une statistique avec un formulaire CRUD. Le périmètre du store indique quelle zone demander : tout le territoire, une académie, un CAP ou un établissement.</p></div><p class="action">Réutilise statistiquesService.pourPerimetre(perimetre), puis affiche les résultats avec StatCard.</p><details><summary>Voir la vue de statistiques complète</summary><div class="details-body"><p>Réutilise <code>src/services/statistiques.service.js</code> : <code>pourPerimetre(perimetre)</code> choisit déjà la bonne méthode. Les composants <code>StatCard</code> et <code>StatistiquesPanel</code> sont enregistrés globalement. Commence par une carte, puis ajoute les autres chiffres présents dans la réponse.</p>
+  <div class="code-bloc"><div class="code-titre">src/services/statistiques.service.js — sélection réelle de l’endpoint</div><pre><code>pourPerimetre(perimetre) {
+    switch (perimetre?.niveau) {
+      case 'academie':
+        return this.academie(perimetre.academie.id)
+      case 'cap':
+        return this.cap(perimetre.cap.id)
+      case 'etablissement':
+        return this.etablissement(perimetre.etablissement.id)
+      default:
+        return this.national()
+    }
+  },</code></pre></div>
+  <p>L’exemple suivant est une <strong>vue minimale à créer</strong>, construite avec les fonctions et composants réels. Il reprend les mêmes champs <code>stats.effectifs</code> que le tableau de bord et réutilise <code>etatApi</code> pour éviter de recopier la gestion des erreurs.</p>
+  <div class="code-bloc"><div class="code-titre">Exemple de nouvelle vue statistique en Options API</div><pre><code>&lt;template&gt;
+  &lt;div&gt;
+    &lt;AppLoader v-if="chargement" message="Chargement des statistiques…" /&gt;
+    &lt;AppAlert v-else-if="erreur" type="erreur" :message="erreur" /&gt;
+    &lt;p v-else-if="!stats"&gt;Aucune statistique disponible.&lt;/p&gt;
+    &lt;div v-else class="grid sm:grid-cols-2 gap-4"&gt;
+      &lt;StatCard libelle="Élèves inscrits" :valeur="stats.effectifs?.eleves ?? stats.effectifs?.total ?? 0" /&gt;
+      &lt;StatCard v-if="stats.effectifs?.etablissements !== undefined"
+                libelle="Établissements" :valeur="stats.effectifs.etablissements" /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import { mapState } from 'pinia'
+import { useAuthStore } from '@/stores/auth.js'
+import etatApi from '@/mixins/etatApi.js'
+import statistiquesService from '@/services/statistiques.service.js'
+
+export default {
+  name: 'StatistiquesResumeView',
+  mixins: [etatApi],
+  data() {
+    return { stats: null }
+  },
+  computed: {
+    ...mapState(useAuthStore, ['perimetre']),
+  },
+  mounted() {
+    this.charger()
+  },
+  methods: {
+    async charger() {
+      await this.executerChargement(async () =&gt; {
+        this.stats = await statistiquesService.pourPerimetre(this.perimetre)
+      })
+    },
+  },
+}
+&lt;/script&gt;</code></pre></div>
+  <p><code>?.</code> évite de lire une propriété sur une donnée absente ; <code>??</code> fournit une valeur de remplacement seulement si la donnée manque. Zéro reste un résultat valide, pas une erreur. Pour une nouvelle page, enregistre son chemin et son composant dans <code>src/router/index.js</code> et ajoute son entrée dans le menu ; pour enrichir les statistiques existantes, complète <code>src/views/statistiques/StatistiquesView.vue</code> sans dupliquer sa route.</p>
+  <p>Teste avec les différents rôles : la méthode <code>pourPerimetre</code> doit sélectionner l’URL correspondante et les chiffres doivent rester dans la zone autorisée. Si tu ajoutes un sélecteur de périmètre, rappelle <code>charger()</code> quand la sélection change, comme le fait la vue existante.</p></div></details></section><section id="voyage" class="chapitre"><h2>Le voyage d’une donnée</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Une saisie passe de la vue au service, puis au serveur. Quand la réponse arrive, Vue met l’écran à jour automatiquement : c’est la réactivité.</p></div><ol class="voyage"><li><strong>Saisir :</strong> v-model range le texte dans donnees.</li><li><strong>Envoyer :</strong> @submit.prevent appelle enregistrer(), puis le service.</li><li><strong>Transporter :</strong> Axios ajoute le jeton et transmet la requête.</li><li><strong>Répondre :</strong> le serveur accepte ou renvoie une erreur, par exemple 422.</li><li><strong>Afficher :</strong> retour à la liste sur succès ; message sous le champ en cas d’erreur.</li></ol></section><section id="pieges" class="chapitre"><h2>Les pièges du débutant</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Un écran peut être bien dessiné mais mal relié au reste du projet. Les erreurs les plus fréquentes sont des noms incohérents ou des étapes oubliées. Vérifie les liaisons entre route, vue, service et réponse avant de réécrire du code.</p></div><ul><li><strong>Copier les champs utilisateur partout :</strong> adapte aussi le corps envoyé, les règles de rôle et les erreurs de chaque champ.</li>
+  <li><strong>Inventer un endpoint :</strong> les filières sont en lecture seule dans le service actuel ; candidats et transferts ont leurs propres actions.</li>
+  <li><strong>Confondre l’URL API et la route Vue :</strong> les académies se consultent dans le navigateur sous <code>/referentiels/academies</code>, mais le service appelle <code>/academies</code>.</li>
+  <li><strong>Oublier :id :</strong> <code>this.$route.params.id</code> exige un paramètre dans le chemin ; <code>props: true</code> n’est nécessaire que pour recevoir aussi une prop.</li>
+  <li><strong>Oublier nouveau avant :id :</strong> garde les mots-clés avant les paramètres dans le tableau pour une lecture claire. Les routes utilisent la forme simple <code>:id</code>.</li>
+  <li><strong>Afficher vide pendant le chargement :</strong> teste d’abord <code>chargement</code>, ensuite <code>erreur</code>, puis l’absence de résultat.</li>
+  <li><strong>Doubler le loader :</strong> AppTable gère déjà son indicateur ; ne l’ajoute pas une seconde fois autour du tableau.</li>
+  <li><strong>Ignorer le 422 :</strong> conserve <code>this.erreurs = e.erreurs || {}</code> et <code>:erreur="erreurs.nom"</code> sur chaque champ concerné.</li>
+  <li><strong>Oublier l’actualisation :</strong> après une action, rappelle <code>charger()</code> ou navigue vers la liste.</li>
+  <li><strong>Réécrire Axios ou stocker le jeton dans une vue :</strong> utilise l’instance api et le store auth existants.</li>
+  <li><strong>Mélanger les styles Vue :</strong> reste avec <code>data()</code>, <code>computed</code>, <code>methods</code>, <code>mounted()</code> ; aucun <code>&lt;script setup&gt;</code> ni <code>ref()</code>.</li></ul></section><section id="checklist" class="chapitre"><h2>Check-list finale</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>Vérifier seulement le cas où tout réussit ne suffit pas : le serveur peut être lent, refuser une saisie ou ne renvoyer aucune fiche. Cette liste couvre ces situations pour rendre le module utilisable. Coche les opérations applicables à ta ressource ; un module en lecture seule n’a pas à fournir un formulaire.</p></div><p>Les cases sont mémorisées dans ce navigateur si son stockage local est autorisé.</p><ul class="checklist" id="liste-checklist"><li><input type="checkbox" id="chk1" /><label for="chk1">La liste charge automatiquement et affiche AppLoader pendant l’attente.</label></li><li><input type="checkbox" id="chk2" /><label for="chk2">Chargement, erreur, vide et contenu s’affichent chacun au bon moment.</label></li><li><input type="checkbox" id="chk3" /><label for="chk3">Détails ouvre la bonne fiche avec son :id.</label></li><li><input type="checkbox" id="chk4" /><label for="chk4">La fiche affiche AppLoader puis ses informations ou une erreur.</label></li><li><input type="checkbox" id="chk5" /><label for="chk5">La création utilise les champs et la méthode du service de la ressource.</label></li><li><input type="checkbox" id="chk6" /><label for="chk6">Le formulaire d’édition charge la bonne fiche avant son PUT, si cette action existe.</label></li><li><input type="checkbox" id="chk7" /><label for="chk7">Une erreur 422 affiche le message sous le champ concerné.</label></li><li><input type="checkbox" id="chk8" /><label for="chk8">La confirmation explique la vraie action : suppression ou désactivation.</label></li><li><input type="checkbox" id="chk9" /><label for="chk9">Après une action réussie, les données affichées sont à jour.</label></li><li><input type="checkbox" id="chk10" /><label for="chk10">Aucun appel Axios direct dans une vue et aucun jeton ajouté à la main.</label></li><li><input type="checkbox" id="chk11" /><label for="chk11">Les boutons d’envoi sont désactivés pendant leur requête.</label></li><li><input type="checkbox" id="chk12" /><label for="chk12">Après F5, GET /auth/compte restaure le profil, le nom et le rôle.</label></li><li><input type="checkbox" id="chk13" /><label for="chk13">Les statistiques correspondent au périmètre connecté.</label></li><li><input type="checkbox" id="chk14" /><label for="chk14">Le Loader reste compréhensible avec les animations réduites et un lecteur d’écran.</label></li></ul>
+  <p>Lance <code>npm.cmd run dev</code> sous PowerShell (ou <code>npm run dev</code> selon ton terminal). Connecte-toi avec <code>admin@portail.ml</code> / <code>password</code> si ce compte de formation est disponible. Dans les outils du navigateur, onglet Réseau, vérifie les requêtes et simule une connexion lente ou hors ligne ; utilise un compte de test pour les écritures. Termine par <code>npm.cmd run build</code>.</p></section><section id="plus-loin" class="chapitre"><h2>Pour aller plus loin</h2><div class="callout astuce"><span class="label">Comprendre le concept</span><p>La recherche réduit la liste selon un texte ; la pagination affiche une portion des résultats à la fois. Le mixin fournit déjà ces outils et permet de les réutiliser sans refaire leur logique. Ajoute-les après avoir validé le parcours simple de ta ressource.</p></div><p>Relie un champ à <code>params.recherche</code> : listeApi attend 400 ms après la frappe avant de relancer la demande. Pour la pagination, conserve AppPagination et les méthodes <code>changerPage</code>/<code>changerTaille</code>. Pour les chiffres de synthèse, suis la <a href="#statistiques">section statistiques</a> et réutilise le service existant.</p></section><footer>Portail CNCECE — Guide basé sur les fichiers actuels du projet. Les extraits réels sont identifiés ; les nouveaux fichiers et routes d’exercice sont explicitement signalés. Document autonome : CSS et script intégrés, aucune dépendance externe.</footer>
+</div>
+
+<script>
+  // Persistance locale (par navigateur) de l'état de la check-list finale — confort
+  // uniquement, aucune donnée envoyée nulle part.
+  (function () {
+    try {
+      var cases = document.querySelectorAll('#liste-checklist input[type="checkbox"]');
+      cases.forEach(function (c) {
+        var cle = 'crud-guide-' + c.id;
+        c.checked = localStorage.getItem(cle) === '1';
+        c.addEventListener('change', function () {
+          try { localStorage.setItem(cle, c.checked ? '1' : '0'); } catch (e) {}
+        });
+      });
+    } catch (e) { /* stockage indisponible (navigation privée…) : la page reste utilisable */ }
+  })();
+</script>
+<script>
+// Une progression de lecture et un repère dans le sommaire, sans dépendance.
+(function () {
+  var progress = document.querySelector('.progress');
+  function updateProgress() {
+    var distance = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.width = (distance > 0 ? window.scrollY / distance * 100 : 0) + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  document.addEventListener('toggle', updateProgress, true);
+  updateProgress();
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        document.querySelectorAll('.sommaire a').forEach(function (link) {
+          if (link.getAttribute('href') === '#' + entry.target.id) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+      });
+    }, { rootMargin: '-12% 0px -65% 0px' });
+    document.querySelectorAll('section[id], .etape[id]').forEach(function (section) { observer.observe(section); });
+  }
+})();
+</script></body>
+</html>
